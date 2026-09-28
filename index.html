@@ -34,7 +34,6 @@
       flex-direction: column;
     }
 
-    /* Mobile Top Bar */
     .topbar {
       display: none;
       align-items: center;
@@ -66,7 +65,6 @@
       font-size: 18px;
     }
 
-    /* Layout */
     .layout {
       display: flex;
       flex: 1;
@@ -74,7 +72,6 @@
       position: relative;
     }
 
-    /* Sidebar */
     .sidebar {
       width: 280px;
       background: var(--sidebar);
@@ -144,7 +141,6 @@
       padding-top: 16px;
     }
 
-    /* Overlay for mobile */
     .overlay {
       display: none;
       position: fixed;
@@ -155,7 +151,6 @@
 
     .overlay.show { display: block; }
 
-    /* Main Chat */
     .main {
       flex: 1;
       display: flex;
@@ -244,7 +239,6 @@
       30% { transform: translateY(-4px); }
     }
 
-    /* Input */
     .input-area {
       padding: 12px 16px 16px;
       border-top: 1px solid var(--border);
@@ -295,7 +289,6 @@
     .send-btn:hover:not(:disabled) { background: var(--primary-hover); }
     .send-btn:disabled { opacity: 0.5; cursor: not-allowed; }
 
-    /* Welcome */
     .welcome {
       text-align: center;
       margin: auto;
@@ -336,7 +329,6 @@
       color: var(--primary);
     }
 
-    /* ========== MOBILE ========== */
     @media (max-width: 768px) {
       .topbar { display: flex; }
 
@@ -361,7 +353,6 @@
   </style>
 </head>
 <body>
-  <!-- Mobile Top Bar -->
   <div class="topbar">
     <div class="logo">Clincoo <span>AI</span></div>
     <button class="menu-btn" onclick="toggleSidebar()" aria-label="Menu">☰</button>
@@ -380,27 +371,23 @@
 
       <label style="margin-top:4px;">Model</label>
       <select class="model-select" id="modelSelect">
-        <optgroup label="Gratis">
-          <option value="qwen/qwen3.8-27b:free">Qwen3.8 27B (Gratis)</option>
-          <option value="nvidia/nemotron-3-ultra-550b-a55b:free">Nemotron 3 Ultra (Gratis)</option>
+        <optgroup label="Gratis (Recommended)">
+          <option value="qwen/qwen3.8-27b:free" selected>Qwen3.8 27B — Gratis</option>
+          <option value="nvidia/nemotron-3-ultra-550b-a55b:free">Nemotron 3 Ultra — Gratis</option>
           <option value="openrouter/free">Free Router (Auto)</option>
         </optgroup>
         <optgroup label="Murah & Pintar">
-          <option value="openai/gpt-6-luna" selected>GPT-6 Luna (~$0.10)</option>
           <option value="deepseek/deepseek-v4.1-flash">DeepSeek V4.1 Flash (~$0.05)</option>
-          <option value="z-ai/glm-5.3-flash">GLM 5.3 Flash (~$0.3)</option>
+          <option value="openai/gpt-6-luna">GPT-6 Luna (~$0.10)</option>
+          <option value="z-ai/glm-5.3-flash">GLM 5.3 Flash (~$0.15)</option>
           <option value="xiaomi/mimo-v2.6-flash">MiMo V2.6 Flash (~$0.14)</option>
-        </optgroup>
-        <optgroup label="Lebih Kuat">
-          <option value="openai/gpt-6-sol">GPT-6 Sol (~$2)</option>
-          <option value="x-ai/grok-4.7">Grok 4.7 (~$1.6)</option>
         </optgroup>
       </select>
 
       <div class="info">
         <p><strong>Gratis</strong> = rate limit terbatas</p>
-        <p style="margin-top:6px;"><strong>Murah & Pintar</strong> = recommended</p>
-        <p style="margin-top:6px;">GPT-6 Luna paling seimbang</p>
+        <p style="margin-top:6px;"><strong>Qwen3.8 27B</strong> = default terbaik gratis</p>
+        <p style="margin-top:6px;"><strong>DeepSeek / Luna</strong> = paling pintar murah</p>
         <p style="margin-top:12px;">Powered by OpenRouter</p>
       </div>
     </aside>
@@ -409,12 +396,12 @@
       <div class="messages" id="messages">
         <div class="welcome" id="welcome">
           <h1>Clincoo AI Chat</h1>
-          <p>Model gratis + murah & pintar (GPT-6 Luna dll)</p>
+          <p>Fokus model gratis & murah yang pintar</p>
           <div class="suggestions">
             <div class="suggestion" onclick="ask('Jelaskan cara kerja Cloudflare Workers')">Cloudflare Workers</div>
             <div class="suggestion" onclick="ask('Buatkan contoh API payment Pakasir')">Contoh API Payment</div>
-            <div class="suggestion" onclick="ask('Apa model AI gratis terbaik saat ini?')">Model AI Gratis</div>
-            <div class="suggestion" onclick="ask('Bantu saya buat landing page sederhana')">Buat Landing Page</div>
+            <div class="suggestion" onclick="ask('Buatkan landing page modern dengan HTML CSS')">Buat Landing Page</div>
+            <div class="suggestion" onclick="ask('Buatkan backend API Node.js sederhana')">Buat Backend API</div>
           </div>
         </div>
       </div>
