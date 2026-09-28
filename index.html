@@ -269,16 +269,27 @@
 
     <label style="font-size:12px;color:var(--muted);margin-bottom:6px;margin-top:8px;">Model</label>
     <select class="model-select" id="modelSelect">
-      <option value="qwen/qwen3.8-27b:free">Qwen3.8 27B (Gratis - Recommended)</option>
-      <option value="nvidia/nemotron-3-ultra-550b-a55b:free">Nemotron 3 Ultra (Gratis)</option>
-      <option value="openrouter/free">Free Router (Auto pilih gratis)</option>
-      <option value="openai/gpt-6-luna">GPT-6 Luna (Berbayar)</option>
-      <option value="openai/gpt-6-sol">GPT-6 Sol (Berbayar)</option>
+      <optgroup label="Gratis">
+        <option value="qwen/qwen3.8-27b:free">Qwen3.8 27B (Gratis)</option>
+        <option value="nvidia/nemotron-3-ultra-550b-a55b:free">Nemotron 3 Ultra (Gratis)</option>
+        <option value="openrouter/free">Free Router (Auto)</option>
+      </optgroup>
+      <optgroup label="Murah & Pintar">
+        <option value="openai/gpt-6-luna" selected>GPT-6 Luna (~$0.10)</option>
+        <option value="deepseek/deepseek-v4.1-flash">DeepSeek V4.1 Flash (~$0.05)</option>
+        <option value="z-ai/glm-5.3-flash">GLM 5.3 Flash (~$0.3)</option>
+        <option value="xiaomi/mimo-v2.6-flash">MiMo V2.6 Flash (~$0.14)</option>
+      </optgroup>
+      <optgroup label="Lebih Kuat">
+        <option value="openai/gpt-6-sol">GPT-6 Sol (~$2)</option>
+        <option value="x-ai/grok-4.7">Grok 4.7 (~$1.6)</option>
+      </optgroup>
     </select>
 
     <div class="info">
-      <p><strong>Gratis</strong> = rate limit ~20 req/menit</p>
-      <p style="margin-top:8px;">GPT-6 Luna lebih pintar tapi berbayar</p>
+      <p><strong>Gratis</strong> = rate limit terbatas</p>
+      <p style="margin-top:8px;"><strong>Murah & Pintar</strong> = recommended</p>
+      <p style="margin-top:8px;">GPT-6 Luna paling seimbang</p>
       <p style="margin-top:12px;">Powered by OpenRouter</p>
     </div>
   </aside>
@@ -287,7 +298,7 @@
     <div class="messages" id="messages">
       <div class="welcome" id="welcome">
         <h1>Clincoo AI Chat</h1>
-        <p>Model gratis terbaik + opsi GPT-6 Luna</p>
+        <p>Model gratis + murah & pintar (GPT-6 Luna dll)</p>
         <div class="suggestions">
           <div class="suggestion" onclick="ask('Jelaskan cara kerja Cloudflare Workers')">Cloudflare Workers</div>
           <div class="suggestion" onclick="ask('Buatkan contoh API payment Pakasir')">Contoh API Payment</div>
@@ -316,7 +327,6 @@
     const welcomeEl = document.getElementById('welcome');
     const apiKeyInput = document.getElementById('apiKey');
 
-    // Load saved key
     apiKeyInput.value = localStorage.getItem('or_key') || '';
 
     apiKeyInput.addEventListener('change', () => {
