@@ -2,7 +2,7 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
   <title>Clincoo AI Chat</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
@@ -21,15 +21,60 @@
 
     * { margin: 0; padding: 0; box-sizing: border-box; }
 
+    html, body {
+      height: 100%;
+      overflow: hidden;
+    }
+
     body {
       font-family: 'Inter', system-ui, sans-serif;
       background: var(--bg);
       color: var(--text);
-      height: 100vh;
       display: flex;
-      overflow: hidden;
+      flex-direction: column;
     }
 
+    /* Mobile Top Bar */
+    .topbar {
+      display: none;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 16px;
+      background: var(--sidebar);
+      border-bottom: 1px solid var(--border);
+      z-index: 50;
+    }
+
+    .topbar .logo {
+      font-size: 17px;
+      font-weight: 700;
+    }
+
+    .topbar .logo span { color: var(--primary); }
+
+    .menu-btn {
+      background: var(--card);
+      border: 1px solid var(--border);
+      color: var(--text);
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 18px;
+    }
+
+    /* Layout */
+    .layout {
+      display: flex;
+      flex: 1;
+      overflow: hidden;
+      position: relative;
+    }
+
+    /* Sidebar */
     .sidebar {
       width: 280px;
       background: var(--sidebar);
@@ -37,9 +82,12 @@
       display: flex;
       flex-direction: column;
       padding: 16px;
+      flex-shrink: 0;
+      z-index: 40;
+      transition: transform 0.25s ease;
     }
 
-    .logo {
+    .sidebar .logo {
       font-size: 20px;
       font-weight: 700;
       margin-bottom: 20px;
@@ -48,7 +96,14 @@
       gap: 8px;
     }
 
-    .logo span { color: var(--primary); }
+    .sidebar .logo span { color: var(--primary); }
+
+    .sidebar label {
+      font-size: 12px;
+      color: var(--muted);
+      margin-bottom: 6px;
+      display: block;
+    }
 
     .model-select, .api-input {
       width: 100%;
@@ -61,7 +116,10 @@
       margin-bottom: 12px;
     }
 
-    .model-select:focus, .api-input:focus { outline: none; border-color: var(--primary); }
+    .model-select:focus, .api-input:focus {
+      outline: none;
+      border-color: var(--primary);
+    }
 
     .new-chat-btn {
       width: 100%;
@@ -73,6 +131,7 @@
       font-weight: 600;
       cursor: pointer;
       margin-bottom: 16px;
+      font-size: 14px;
     }
 
     .new-chat-btn:hover { background: var(--primary-hover); }
@@ -82,12 +141,26 @@
       color: var(--muted);
       line-height: 1.5;
       margin-top: auto;
+      padding-top: 16px;
     }
 
+    /* Overlay for mobile */
+    .overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.55);
+      z-index: 30;
+    }
+
+    .overlay.show { display: block; }
+
+    /* Main Chat */
     .main {
       flex: 1;
       display: flex;
       flex-direction: column;
+      min-width: 0;
       max-width: 900px;
       margin: 0 auto;
       width: 100%;
@@ -96,16 +169,17 @@
     .messages {
       flex: 1;
       overflow-y: auto;
-      padding: 24px 16px;
+      padding: 20px 16px;
       display: flex;
       flex-direction: column;
-      gap: 20px;
+      gap: 16px;
+      -webkit-overflow-scrolling: touch;
     }
 
     .message {
       display: flex;
-      gap: 12px;
-      max-width: 85%;
+      gap: 10px;
+      max-width: 90%;
     }
 
     .message.user {
@@ -114,13 +188,13 @@
     }
 
     .avatar {
-      width: 32px;
-      height: 32px;
+      width: 30px;
+      height: 30px;
       border-radius: 50%;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 14px;
+      font-size: 12px;
       font-weight: 600;
       flex-shrink: 0;
     }
@@ -129,10 +203,10 @@
     .message.assistant .avatar { background: #238636; }
 
     .bubble {
-      padding: 12px 16px;
-      border-radius: 16px;
+      padding: 10px 14px;
+      border-radius: 14px;
       line-height: 1.55;
-      font-size: 15px;
+      font-size: 14.5px;
       white-space: pre-wrap;
       word-break: break-word;
     }
@@ -151,7 +225,7 @@
     .typing {
       display: flex;
       gap: 4px;
-      padding: 8px 0;
+      padding: 6px 0;
     }
 
     .typing span {
@@ -170,9 +244,12 @@
       30% { transform: translateY(-4px); }
     }
 
+    /* Input */
     .input-area {
-      padding: 16px;
+      padding: 12px 16px 16px;
       border-top: 1px solid var(--border);
+      background: var(--bg);
+      flex-shrink: 0;
     }
 
     .input-box {
@@ -181,7 +258,7 @@
       background: var(--card);
       border: 1px solid var(--border);
       border-radius: 14px;
-      padding: 10px 14px;
+      padding: 10px 12px;
       align-items: flex-end;
     }
 
@@ -195,9 +272,10 @@
       font-size: 15px;
       font-family: inherit;
       resize: none;
-      max-height: 150px;
+      max-height: 120px;
       outline: none;
       line-height: 1.45;
+      min-height: 24px;
     }
 
     .send-btn {
@@ -217,17 +295,23 @@
     .send-btn:hover:not(:disabled) { background: var(--primary-hover); }
     .send-btn:disabled { opacity: 0.5; cursor: not-allowed; }
 
+    /* Welcome */
     .welcome {
       text-align: center;
       margin: auto;
-      padding: 40px 20px;
+      padding: 32px 16px;
       color: var(--muted);
     }
 
     .welcome h1 {
-      font-size: 28px;
+      font-size: 24px;
       color: var(--text);
       margin-bottom: 8px;
+    }
+
+    .welcome p {
+      font-size: 14px;
+      margin-bottom: 20px;
     }
 
     .suggestions {
@@ -235,7 +319,6 @@
       flex-wrap: wrap;
       gap: 8px;
       justify-content: center;
-      margin-top: 20px;
     }
 
     .suggestion {
@@ -245,6 +328,7 @@
       border-radius: 20px;
       font-size: 13px;
       cursor: pointer;
+      transition: border-color 0.15s, color 0.15s;
     }
 
     .suggestion:hover {
@@ -252,73 +336,101 @@
       color: var(--primary);
     }
 
-    @media (max-width: 700px) {
-      .sidebar { display: none; }
+    /* ========== MOBILE ========== */
+    @media (max-width: 768px) {
+      .topbar { display: flex; }
+
+      .sidebar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        bottom: 0;
+        width: 280px;
+        transform: translateX(-100%);
+        box-shadow: 4px 0 24px rgba(0,0,0,0.4);
+      }
+
+      .sidebar.open {
+        transform: translateX(0);
+      }
+
       .message { max-width: 95%; }
+
+      .welcome h1 { font-size: 22px; }
     }
   </style>
 </head>
 <body>
-  <aside class="sidebar">
+  <!-- Mobile Top Bar -->
+  <div class="topbar">
     <div class="logo">Clincoo <span>AI</span></div>
+    <button class="menu-btn" onclick="toggleSidebar()" aria-label="Menu">☰</button>
+  </div>
 
-    <button class="new-chat-btn" onclick="newChat()">+ Chat Baru</button>
+  <div class="overlay" id="overlay" onclick="closeSidebar()"></div>
 
-    <label style="font-size:12px;color:var(--muted);margin-bottom:6px;">OpenRouter API Key</label>
-    <input type="password" class="api-input" id="apiKey" placeholder="sk-or-v1-..." />
+  <div class="layout">
+    <aside class="sidebar" id="sidebar">
+      <div class="logo">Clincoo <span>AI</span></div>
 
-    <label style="font-size:12px;color:var(--muted);margin-bottom:6px;margin-top:8px;">Model</label>
-    <select class="model-select" id="modelSelect">
-      <optgroup label="Gratis">
-        <option value="qwen/qwen3.8-27b:free">Qwen3.8 27B (Gratis)</option>
-        <option value="nvidia/nemotron-3-ultra-550b-a55b:free">Nemotron 3 Ultra (Gratis)</option>
-        <option value="openrouter/free">Free Router (Auto)</option>
-      </optgroup>
-      <optgroup label="Murah & Pintar">
-        <option value="openai/gpt-6-luna" selected>GPT-6 Luna (~$0.10)</option>
-        <option value="deepseek/deepseek-v4.1-flash">DeepSeek V4.1 Flash (~$0.05)</option>
-        <option value="z-ai/glm-5.3-flash">GLM 5.3 Flash (~$0.3)</option>
-        <option value="xiaomi/mimo-v2.6-flash">MiMo V2.6 Flash (~$0.14)</option>
-      </optgroup>
-      <optgroup label="Lebih Kuat">
-        <option value="openai/gpt-6-sol">GPT-6 Sol (~$2)</option>
-        <option value="x-ai/grok-4.7">Grok 4.7 (~$1.6)</option>
-      </optgroup>
-    </select>
+      <button class="new-chat-btn" onclick="newChat(); closeSidebar();">+ Chat Baru</button>
 
-    <div class="info">
-      <p><strong>Gratis</strong> = rate limit terbatas</p>
-      <p style="margin-top:8px;"><strong>Murah & Pintar</strong> = recommended</p>
-      <p style="margin-top:8px;">GPT-6 Luna paling seimbang</p>
-      <p style="margin-top:12px;">Powered by OpenRouter</p>
-    </div>
-  </aside>
+      <label>OpenRouter API Key</label>
+      <input type="password" class="api-input" id="apiKey" placeholder="sk-or-v1-..." />
 
-  <main class="main">
-    <div class="messages" id="messages">
-      <div class="welcome" id="welcome">
-        <h1>Clincoo AI Chat</h1>
-        <p>Model gratis + murah & pintar (GPT-6 Luna dll)</p>
-        <div class="suggestions">
-          <div class="suggestion" onclick="ask('Jelaskan cara kerja Cloudflare Workers')">Cloudflare Workers</div>
-          <div class="suggestion" onclick="ask('Buatkan contoh API payment Pakasir')">Contoh API Payment</div>
-          <div class="suggestion" onclick="ask('Apa model AI gratis terbaik saat ini?')">Model AI Gratis</div>
-          <div class="suggestion" onclick="ask('Bantu saya buat landing page sederhana')">Buat Landing Page</div>
+      <label style="margin-top:4px;">Model</label>
+      <select class="model-select" id="modelSelect">
+        <optgroup label="Gratis">
+          <option value="qwen/qwen3.8-27b:free">Qwen3.8 27B (Gratis)</option>
+          <option value="nvidia/nemotron-3-ultra-550b-a55b:free">Nemotron 3 Ultra (Gratis)</option>
+          <option value="openrouter/free">Free Router (Auto)</option>
+        </optgroup>
+        <optgroup label="Murah & Pintar">
+          <option value="openai/gpt-6-luna" selected>GPT-6 Luna (~$0.10)</option>
+          <option value="deepseek/deepseek-v4.1-flash">DeepSeek V4.1 Flash (~$0.05)</option>
+          <option value="z-ai/glm-5.3-flash">GLM 5.3 Flash (~$0.3)</option>
+          <option value="xiaomi/mimo-v2.6-flash">MiMo V2.6 Flash (~$0.14)</option>
+        </optgroup>
+        <optgroup label="Lebih Kuat">
+          <option value="openai/gpt-6-sol">GPT-6 Sol (~$2)</option>
+          <option value="x-ai/grok-4.7">Grok 4.7 (~$1.6)</option>
+        </optgroup>
+      </select>
+
+      <div class="info">
+        <p><strong>Gratis</strong> = rate limit terbatas</p>
+        <p style="margin-top:6px;"><strong>Murah & Pintar</strong> = recommended</p>
+        <p style="margin-top:6px;">GPT-6 Luna paling seimbang</p>
+        <p style="margin-top:12px;">Powered by OpenRouter</p>
+      </div>
+    </aside>
+
+    <main class="main">
+      <div class="messages" id="messages">
+        <div class="welcome" id="welcome">
+          <h1>Clincoo AI Chat</h1>
+          <p>Model gratis + murah & pintar (GPT-6 Luna dll)</p>
+          <div class="suggestions">
+            <div class="suggestion" onclick="ask('Jelaskan cara kerja Cloudflare Workers')">Cloudflare Workers</div>
+            <div class="suggestion" onclick="ask('Buatkan contoh API payment Pakasir')">Contoh API Payment</div>
+            <div class="suggestion" onclick="ask('Apa model AI gratis terbaik saat ini?')">Model AI Gratis</div>
+            <div class="suggestion" onclick="ask('Bantu saya buat landing page sederhana')">Buat Landing Page</div>
+          </div>
         </div>
       </div>
-    </div>
 
-    <div class="input-area">
-      <div class="input-box">
-        <textarea id="input" rows="1" placeholder="Tulis pesan..." onkeydown="handleKey(event)"></textarea>
-        <button class="send-btn" id="sendBtn" onclick="sendMessage()">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/>
-          </svg>
-        </button>
+      <div class="input-area">
+        <div class="input-box">
+          <textarea id="input" rows="1" placeholder="Tulis pesan..." onkeydown="handleKey(event)"></textarea>
+          <button class="send-btn" id="sendBtn" onclick="sendMessage()" aria-label="Kirim">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/>
+            </svg>
+          </button>
+        </div>
       </div>
-    </div>
-  </main>
+    </main>
+  </div>
 
   <script>
     const messagesEl = document.getElementById('messages');
@@ -326,15 +438,26 @@
     const sendBtn = document.getElementById('sendBtn');
     const welcomeEl = document.getElementById('welcome');
     const apiKeyInput = document.getElementById('apiKey');
+    const sidebar = document.getElementById('sidebar');
+    const overlay = document.getElementById('overlay');
 
     apiKeyInput.value = localStorage.getItem('or_key') || '';
-
     apiKeyInput.addEventListener('change', () => {
       localStorage.setItem('or_key', apiKeyInput.value.trim());
     });
 
     let history = [];
     let isGenerating = false;
+
+    function toggleSidebar() {
+      sidebar.classList.toggle('open');
+      overlay.classList.toggle('show');
+    }
+
+    function closeSidebar() {
+      sidebar.classList.remove('open');
+      overlay.classList.remove('show');
+    }
 
     function newChat() {
       history = [];
@@ -402,13 +525,15 @@
 
       if (!text || isGenerating) return;
       if (!apiKey) {
-        alert('Masukkan OpenRouter API Key dulu di sidebar kiri');
+        alert('Masukkan OpenRouter API Key dulu (buka menu ☰ di kiri atas)');
+        toggleSidebar();
         return;
       }
 
       isGenerating = true;
       sendBtn.disabled = true;
       inputEl.value = '';
+      inputEl.style.height = 'auto';
 
       addMessage('user', text);
       history.push({ role: 'user', content: text });
@@ -481,7 +606,7 @@
 
     inputEl.addEventListener('input', () => {
       inputEl.style.height = 'auto';
-      inputEl.style.height = Math.min(inputEl.scrollHeight, 150) + 'px';
+      inputEl.style.height = Math.min(inputEl.scrollHeight, 120) + 'px';
     });
   </script>
 </body>
