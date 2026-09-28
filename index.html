@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Clincoo AI Chat</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0f1117;
+      --sidebar: #161b22;
+      --card: #1c2128;
+      --border: #30363d;
+      --text: #e6edf3;
+      --muted: #8b949e;
+      --primary: #6366f1;
+      --primary-hover: #4f46e5;
+      --user-bg: #6366f1;
+      --ai-bg: #21262d;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Inter', system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      height: 100vh;
+      display: flex;
+      overflow: hidden;
+    }
+
+    .sidebar {
+      width: 280px;
+      background: var(--sidebar);
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      padding: 16px;
+    }
+
+    .logo {
+      font-size: 20px;
+      font-weight: 700;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .logo span { color: var(--primary); }
+
+    .model-select, .api-input {
+      width: 100%;
+      padding: 10px 12px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text);
+      font-size: 13px;
+      margin-bottom: 12px;
+    }
+
+    .model-select:focus, .api-input:focus { outline: none; border-color: var(--primary); }
+
+    .new-chat-btn {
+      width: 100%;
+      padding: 10px;
+      background: var(--primary);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+      margin-bottom: 16px;
+    }
+
+    .new-chat-btn:hover { background: var(--primary-hover); }
+
+    .info {
+      font-size: 12px;
+      color: var(--muted);
+      line-height: 1.5;
+      margin-top: auto;
+    }
+
+    .main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      max-width: 900px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    .messages {
+      flex: 1;
+      overflow-y: auto;
+      padding: 24px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .message {
+      display: flex;
+      gap: 12px;
+      max-width: 85%;
+    }
+
+    .message.user {
+      align-self: flex-end;
+      flex-direction: row-reverse;
+    }
+
+    .avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      font-weight: 600;
+      flex-shrink: 0;
+    }
+
+    .message.user .avatar { background: var(--primary); }
+    .message.assistant .avatar { background: #238636; }
+
+    .bubble {
+      padding: 12px 16px;
+      border-radius: 16px;
+      line-height: 1.55;
+      font-size: 15px;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    .message.user .bubble {
+      background: var(--user-bg);
+      border-bottom-right-radius: 4px;
+    }
+
+    .message.assistant .bubble {
+      background: var(--ai-bg);
+      border: 1px solid var(--border);
+      border-bottom-left-radius: 4px;
+    }
+
+    .typing {
+      display: flex;
+      gap: 4px;
+      padding: 8px 0;
+    }
+
+    .typing span {
+      width: 6px;
+      height: 6px;
+      background: var(--muted);
+      border-radius: 50%;
+      animation: bounce 1.2s infinite;
+    }
+
+    .typing span:nth-child(2) { animation-delay: 0.2s; }
+    .typing span:nth-child(3) { animation-delay: 0.4s; }
+
+    @keyframes bounce {
+      0%, 60%, 100% { transform: translateY(0); }
+      30% { transform: translateY(-4px); }
+    }
+
+    .input-area {
+      padding: 16px;
+      border-top: 1px solid var(--border);
+    }
+
+    .input-box {
+      display: flex;
+      gap: 10px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 10px 14px;
+      align-items: flex-end;
+    }
+
+    .input-box:focus-within { border-color: var(--primary); }
+
+    textarea {
+      flex: 1;
+      background: transparent;
+      border: none;
+      color: var(--text);
+      font-size: 15px;
+      font-family: inherit;
+      resize: none;
+      max-height: 150px;
+      outline: none;
+      line-height: 1.45;
+    }
+
+    .send-btn {
+      background: var(--primary);
+      color: white;
+      border: none;
+      width: 38px;
+      height: 38px;
+      border-radius: 10px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .send-btn:hover:not(:disabled) { background: var(--primary-hover); }
+    .send-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    .welcome {
+      text-align: center;
+      margin: auto;
+      padding: 40px 20px;
+      color: var(--muted);
+    }
+
+    .welcome h1 {
+      font-size: 28px;
+      color: var(--text);
+      margin-bottom: 8px;
+    }
+
+    .suggestions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      justify-content: center;
+      margin-top: 20px;
+    }
+
+    .suggestion {
+      background: var(--card);
+      border: 1px solid var(--border);
+      padding: 10px 14px;
+      border-radius: 20px;
+      font-size: 13px;
+      cursor: pointer;
+    }
+
+    .suggestion:hover {
+      border-color: var(--primary);
+      color: var(--primary);
+    }
+
+    @media (max-width: 700px) {
+      .sidebar { display: none; }
+      .message { max-width: 95%; }
+    }
+  </style>
+</head>
+<body>
+  <aside class="sidebar">
+    <div class="logo">Clincoo <span>AI</span></div>
+
+    <button class="new-chat-btn" onclick="newChat()">+ Chat Baru</button>
+
+    <label style="font-size:12px;color:var(--muted);margin-bottom:6px;">OpenRouter API Key</label>
+    <input type="password" class="api-input" id="apiKey" placeholder="sk-or-v1-..." />
+
+    <label style="font-size:12px;color:var(--muted);margin-bottom:6px;margin-top:8px;">Model</label>
+    <select class="model-select" id="modelSelect">
+      <option value="qwen/qwen3.8-27b:free">Qwen3.8 27B (Gratis - Recommended)</option>
+      <option value="nvidia/nemotron-3-ultra-550b-a55b:free">Nemotron 3 Ultra (Gratis)</option>
+      <option value="openrouter/free">Free Router (Auto pilih gratis)</option>
+      <option value="openai/gpt-6-luna">GPT-6 Luna (Berbayar)</option>
+      <option value="openai/gpt-6-sol">GPT-6 Sol (Berbayar)</option>
+    </select>
+
+    <div class="info">
+      <p><strong>Gratis</strong> = rate limit ~20 req/menit</p>
+      <p style="margin-top:8px;">GPT-6 Luna lebih pintar tapi berbayar</p>
+      <p style="margin-top:12px;">Powered by OpenRouter</p>
+    </div>
+  </aside>
+
+  <main class="main">
+    <div class="messages" id="messages">
+      <div class="welcome" id="welcome">
+        <h1>Clincoo AI Chat</h1>
+        <p>Model gratis terbaik + opsi GPT-6 Luna</p>
+        <div class="suggestions">
+          <div class="suggestion" onclick="ask('Jelaskan cara kerja Cloudflare Workers')">Cloudflare Workers</div>
+          <div class="suggestion" onclick="ask('Buatkan contoh API payment Pakasir')">Contoh API Payment</div>
+          <div class="suggestion" onclick="ask('Apa model AI gratis terbaik saat ini?')">Model AI Gratis</div>
+          <div class="suggestion" onclick="ask('Bantu saya buat landing page sederhana')">Buat Landing Page</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="input-area">
+      <div class="input-box">
+        <textarea id="input" rows="1" placeholder="Tulis pesan..." onkeydown="handleKey(event)"></textarea>
+        <button class="send-btn" id="sendBtn" onclick="sendMessage()">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    const messagesEl = document.getElementById('messages');
+    const inputEl = document.getElementById('input');
+    const sendBtn = document.getElementById('sendBtn');
+    const welcomeEl = document.getElementById('welcome');
+    const apiKeyInput = document.getElementById('apiKey');
+
+    // Load saved key
+    apiKeyInput.value = localStorage.getItem('or_key') || '';
+
+    apiKeyInput.addEventListener('change', () => {
+      localStorage.setItem('or_key', apiKeyInput.value.trim());
+    });
+
+    let history = [];
+    let isGenerating = false;
+
+    function newChat() {
+      history = [];
+      messagesEl.innerHTML = '';
+      messagesEl.appendChild(welcomeEl);
+      welcomeEl.style.display = 'block';
+    }
+
+    function ask(text) {
+      inputEl.value = text;
+      sendMessage();
+    }
+
+    function handleKey(e) {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        sendMessage();
+      }
+    }
+
+    function addMessage(role, content) {
+      welcomeEl.style.display = 'none';
+      const div = document.createElement('div');
+      div.className = `message ${role}`;
+
+      const avatar = document.createElement('div');
+      avatar.className = 'avatar';
+      avatar.textContent = role === 'user' ? 'U' : 'AI';
+
+      const bubble = document.createElement('div');
+      bubble.className = 'bubble';
+      bubble.textContent = content;
+
+      div.appendChild(avatar);
+      div.appendChild(bubble);
+      messagesEl.appendChild(div);
+      messagesEl.scrollTop = messagesEl.scrollHeight;
+      return bubble;
+    }
+
+    function showTyping() {
+      const div = document.createElement('div');
+      div.className = 'message assistant';
+      div.id = 'typing';
+      const avatar = document.createElement('div');
+      avatar.className = 'avatar';
+      avatar.textContent = 'AI';
+      const bubble = document.createElement('div');
+      bubble.className = 'bubble';
+      bubble.innerHTML = '<div class="typing"><span></span><span></span><span></span></div>';
+      div.appendChild(avatar);
+      div.appendChild(bubble);
+      messagesEl.appendChild(div);
+      messagesEl.scrollTop = messagesEl.scrollHeight;
+    }
+
+    function removeTyping() {
+      const el = document.getElementById('typing');
+      if (el) el.remove();
+    }
+
+    async function sendMessage() {
+      const text = inputEl.value.trim();
+      const apiKey = apiKeyInput.value.trim();
+
+      if (!text || isGenerating) return;
+      if (!apiKey) {
+        alert('Masukkan OpenRouter API Key dulu di sidebar kiri');
+        return;
+      }
+
+      isGenerating = true;
+      sendBtn.disabled = true;
+      inputEl.value = '';
+
+      addMessage('user', text);
+      history.push({ role: 'user', content: text });
+      showTyping();
+
+      const model = document.getElementById('modelSelect').value;
+
+      try {
+        const res = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${apiKey}`,
+            'Content-Type': 'application/json',
+            'HTTP-Referer': window.location.href,
+            'X-Title': 'Clincoo AI Chat'
+          },
+          body: JSON.stringify({
+            model,
+            messages: history,
+            stream: true,
+            temperature: 0.7
+          })
+        });
+
+        if (!res.ok) {
+          const err = await res.json();
+          throw new Error(err.error?.message || 'Request failed');
+        }
+
+        removeTyping();
+        const bubble = addMessage('assistant', '');
+
+        const reader = res.body.getReader();
+        const decoder = new TextDecoder();
+        let fullText = '';
+
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+
+          const chunk = decoder.decode(value);
+          const lines = chunk.split('\n');
+
+          for (const line of lines) {
+            if (line.startsWith('data: ') && line !== 'data: [DONE]') {
+              try {
+                const data = JSON.parse(line.slice(6));
+                const content = data.choices?.[0]?.delta?.content || '';
+                if (content) {
+                  fullText += content;
+                  bubble.textContent = fullText;
+                  messagesEl.scrollTop = messagesEl.scrollHeight;
+                }
+              } catch {}
+            }
+          }
+        }
+
+        history.push({ role: 'assistant', content: fullText });
+
+      } catch (err) {
+        removeTyping();
+        addMessage('assistant', 'Error: ' + err.message);
+      }
+
+      isGenerating = false;
+      sendBtn.disabled = false;
+      inputEl.focus();
+    }
+
+    inputEl.addEventListener('input', () => {
+      inputEl.style.height = 'auto';
+      inputEl.style.height = Math.min(inputEl.scrollHeight, 150) + 'px';
+    });
+  </script>
+</body>
+</html>
